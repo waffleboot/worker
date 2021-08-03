@@ -11,7 +11,7 @@ type worker struct {
 	done      *sync.WaitGroup
 	readyPool chan chan Work //get work from the boss
 	work      chan Work
-	quit      chan bool
+	quit      chan struct{}
 }
 
 func NewWorker(id int, readyPool chan chan Work, done *sync.WaitGroup) *worker {
@@ -20,7 +20,7 @@ func NewWorker(id int, readyPool chan chan Work, done *sync.WaitGroup) *worker {
 		done:      done,
 		readyPool: readyPool,
 		work:      make(chan Work),
-		quit:      make(chan bool),
+		quit:      make(chan struct{}),
 	}
 }
 
@@ -55,5 +55,5 @@ func (w *worker) Start() {
 
 func (w *worker) Stop() {
 	//tell worker to stop after current process
-	w.quit <- true
+	close(w.quit)
 }
