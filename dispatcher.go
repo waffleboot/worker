@@ -67,8 +67,8 @@ func dispatch(p *Pool) {
 			workerXChannel <- job           // here is your job worker x
 		case <-p.quit:
 			// free all workers
-			for i := 0; i < len(p.workers); i++ {
-				p.workers[i].Stop()
+			for _, w := range p.workers {
+				w.Stop()
 			}
 			// wait for all workers to finish their job
 			p.workersStopped.Wait()
