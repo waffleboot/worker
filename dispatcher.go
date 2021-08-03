@@ -54,26 +54,26 @@ func (p *Pool) Stop() {
 	p.dispatcherStopped.Wait()
 }
 
-func (q *Pool) dispatch() {
+func (p *Pool) dispatch() {
 	//open factory gate
-	q.dispatcherStopped.Add(1)
+	p.dispatcherStopped.Add(1)
 	for {
 		select {
-		case job := <-q.singleJob:
-			workerXChannel := <-q.readyPool //free worker x founded
+		case job := <-p.singleJob:
+			workerXChannel := <-p.readyPool //free worker x founded
 			workerXChannel <- job           // here is your job worker x
-		case job := <-q.internalQueue:
-			workerXChannel := <-q.readyPool //free worker x founded
+		case job := <-p.internalQueue:
+			workerXChannel := <-p.readyPool //free worker x founded
 			workerXChannel <- job           // here is your job worker x
-		case <-q.quit:
+		case <-p.quit:
 			// free all workers
-			for i := 0; i < len(q.workers); i++ {
-				q.workers[i].Stop()
+			for i := 0; i < len(p.workers); i++ {
+				p.workers[i].Stop()
 			}
 			// wait for all workers to finish their job
-			q.workersStopped.Wait()
+			p.workersStopped.Wait()
 			//close factory gate
-			q.dispatcherStopped.Done()
+			p.dispatcherStopped.Done()
 			return
 		}
 	}
