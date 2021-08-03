@@ -50,7 +50,7 @@ func (p *Pool) Start() {
 }
 
 func (p *Pool) Stop() {
-	p.quit <- struct{}{}
+	close(p.quit)
 	p.dispatcherStopped.Wait()
 }
 
