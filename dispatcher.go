@@ -49,9 +49,9 @@ func (q *Pool) Start() {
 	go q.dispatch()
 }
 
-func (q *Pool) Stop() {
-	q.quit <- struct{}{}
-	q.dispatcherStopped.Wait()
+func (p *Pool) Stop() {
+	p.quit <- struct{}{}
+	p.dispatcherStopped.Wait()
 }
 
 func (q *Pool) dispatch() {
