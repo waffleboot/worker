@@ -46,7 +46,7 @@ func (p *Pool) Start() {
 		w.Start()
 	}
 	// open factory
-	go p.dispatch()
+	go dispatch(p)
 }
 
 func (p *Pool) Stop() {
@@ -54,7 +54,7 @@ func (p *Pool) Stop() {
 	p.dispatcherStopped.Wait()
 }
 
-func (p *Pool) dispatch() {
+func dispatch(p *Pool) {
 	//open factory gate
 	p.dispatcherStopped.Add(1)
 	for {
