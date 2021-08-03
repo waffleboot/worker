@@ -40,13 +40,13 @@ func NewWorkerPool(opts ...Opts) *Pool {
 	}
 }
 
-func (q *Pool) Start() {
+func (p *Pool) Start() {
 	//tell workers to get ready
-	for i := 0; i < len(q.workers); i++ {
-		q.workers[i].Start()
+	for i := 0; i < len(p.workers); i++ {
+		p.workers[i].Start()
 	}
 	// open factory
-	go q.dispatch()
+	go p.dispatch()
 }
 
 func (p *Pool) Stop() {
