@@ -42,8 +42,8 @@ func NewWorkerPool(opts ...Opts) *Pool {
 
 func (p *Pool) Start() {
 	//tell workers to get ready
-	for i := 0; i < len(p.workers); i++ {
-		p.workers[i].Start()
+	for _, w := range p.workers {
+		w.Start()
 	}
 	// open factory
 	go p.dispatch()
