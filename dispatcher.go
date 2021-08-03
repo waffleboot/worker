@@ -12,7 +12,7 @@ type Pool struct {
 	workers           []*worker
 	dispatcherStopped sync.WaitGroup
 	workersStopped    *sync.WaitGroup
-	quit              chan bool
+	quit              chan struct{}
 }
 
 func NewWorkerPool(opts ...Opts) *Pool {
@@ -36,7 +36,7 @@ func NewWorkerPool(opts ...Opts) *Pool {
 		workers:           workers,
 		dispatcherStopped: sync.WaitGroup{},
 		workersStopped:    &workersStopped,
-		quit:              make(chan bool),
+		quit:              make(chan struct{}),
 	}
 }
 
@@ -50,7 +50,7 @@ func (q *Pool) Start() {
 }
 
 func (q *Pool) Stop() {
-	q.quit <- true
+	q.quit <- struct{}{}
 	q.dispatcherStopped.Wait()
 }
 
