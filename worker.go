@@ -3,24 +3,19 @@ package worker
 import (
 	"log"
 	"runtime"
-	"sync"
 )
 
 type worker struct {
-	id        int
-	done      *sync.WaitGroup
-	readyPool chan chan Work //get work from the boss
-	work      chan Work
-	quit      chan struct{}
+	id      int
+	work    chan Work
+	manager *workers
 }
 
-func NewWorker(id int, readyPool chan chan Work, done *sync.WaitGroup) *worker {
+func NewWorker(id int, manager *workers) *worker {
 	return &worker{
-		id:        id,
-		done:      done,
-		readyPool: readyPool,
-		work:      make(chan Work),
-		quit:      make(chan struct{}),
+		id:      id,
+		manager: manager,
+		work:    make(chan Work),
 	}
 }
 
@@ -39,21 +34,16 @@ func (w *worker) Process(work Work) {
 
 func (w *worker) Start() {
 	go func() {
-		w.done.Add(1) // wait for me
+		w.manager.Started()
+		defer w.manager.Stopped()
 		for {
-			w.readyPool <- w.work //hey i am ready to work on new job
+			w.manager.Submit(w.work) //hey i am ready to work on new job
 			select {
 			case work := <-w.work: // hey i am waiting for new job
 				w.Process(work) // ok i am on it
-			case <-w.quit:
-				w.done.Done() // ok i am here i finished my all jobs
+			case <-w.manager.Done():
 				return
 			}
 		}
 	}()
-}
-
-func (w *worker) Stop() {
-	//tell worker to stop after current process
-	close(w.quit)
 }
