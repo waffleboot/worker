@@ -11,14 +11,14 @@ type Pool struct {
 	*stopper
 }
 
-func NewWorkerPool(opts ...Opts) *Pool {
-	cfg := buildWorkerPoolConfig(opts...)
-	workers := NewWorkers(cfg.maxWorkers)
-	for i := 0; i < cfg.maxWorkers; i++ {
+func NewWorkerPool(opts ...Option) *Pool {
+	options := buildWorkerPoolOptions(opts...)
+	workers := NewWorkers(options.maxWorkers)
+	for i := 0; i < options.maxWorkers; i++ {
 		workers.Add(NewWorker(i+1, workers))
 	}
 	return &Pool{
-		bufferedQueue: make(chan Work, cfg.jobQueueCapacity),
+		bufferedQueue: make(chan Work, options.jobQueueCapacity),
 		singleQueue:   make(chan Work),
 		stopper:       NewStopper(),
 		workers:       workers,

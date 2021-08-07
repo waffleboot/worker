@@ -1,31 +1,41 @@
 package worker
 
-type workerPoolConfig struct {
+type options struct {
 	maxWorkers       int
 	jobQueueCapacity int
 }
 
-type Opts func(*workerPoolConfig)
+type Option interface {
+	apply(*options)
+}
 
-func WithMaxWorkers(maxWorkers int) Opts {
-	return func(cfg *workerPoolConfig) {
-		cfg.maxWorkers = maxWorkers
+type maxWorkersOption int
+
+func WithMaxWorkers(maxWorkers int) Option {
+	return maxWorkersOption(maxWorkers)
+}
+
+func (o maxWorkersOption) apply(opts *options) {
+	opts.maxWorkers = int(o)
+}
+
+type jobQueueCapacityOption int
+
+func WithJobQueueCapacity(jobQueueCapacity int) Option {
+	return jobQueueCapacityOption(jobQueueCapacity)
+}
+
+func (o jobQueueCapacityOption) apply(opts *options) {
+	opts.jobQueueCapacity = int(o)
+	if opts.jobQueueCapacity <= 0 {
+		opts.jobQueueCapacity = 100
 	}
 }
 
-func WithJobQueueCapacity(jobQueueCapacity int) Opts {
-	return func(cfg *workerPoolConfig) {
-		cfg.jobQueueCapacity = jobQueueCapacity
+func buildWorkerPoolOptions(opts ...Option) options {
+	options := options{}
+	for _, o := range opts {
+		o.apply(&options)
 	}
-}
-
-func buildWorkerPoolConfig(opts ...Opts) *workerPoolConfig {
-	cfg := &workerPoolConfig{}
-	for _, opt := range opts {
-		opt(cfg)
-	}
-	if cfg.jobQueueCapacity <= 0 {
-		cfg.jobQueueCapacity = 100
-	}
-	return cfg
+	return options
 }
