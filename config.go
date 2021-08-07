@@ -1,5 +1,7 @@
 package worker
 
+import "strconv"
+
 type options struct {
 	maxWorkers       int
 	jobQueueCapacity int
@@ -17,6 +19,10 @@ func WithMaxWorkers(maxWorkers int) Option {
 
 func (o maxWorkersOption) apply(opts *options) {
 	opts.maxWorkers = int(o)
+}
+
+func (o maxWorkersOption) String() string {
+	return strconv.Itoa(int(o))
 }
 
 type jobQueueCapacityOption int
